@@ -1,30 +1,27 @@
-// ==UserScript==
-// @name         mini-gravitiqi
-// @namespace    https://github.com/Trungquan2021/mini-gravitiqi
-// @version      2.0.0
-// @description  mini-gravitiqi: Hỗ trợ tự động giải bài tập EduNext AI Constructive Learning.
-// @author       mini-gravitiqi
-// @match        https://fsc-edunext.fpt.edu.vn/*
-// @match        https://fu-edunext.fpt.edu.vn/*
-// @match        https://edunext.vn/*
-// @connect      api.groq.com
-// @connect      generativelanguage.googleapis.com
-// @connect      googleapis.com
-// @connect      raw.githubusercontent.com
-// @connect      gist.githubusercontent.com
-// @connect      *
-// @icon         https://fsc-edunext.fpt.edu.vn/favicon.ico
-// @grant        GM_setValue
-// @grant        GM_getValue
-// @grant        GM_xmlhttpRequest
-// @grant        unsafeWindow
-// @run-at       document-start
-// @require      https://raw.githubusercontent.com/Trungquan2021/mini-gravitiqi/main/mini-gravitiqi.js
-// ==/UserScript==
-
 (function () {
   'use strict';
-  if (typeof window.__INIT_GRAVITIQI === 'function') {
-    window.__INIT_GRAVITIQI('7ad252918bb57c40905e39b6c1431727');
-  }
+  window.__INIT_GRAVITIQI = function (route) {
+    if (!route || typeof route !== 'string') {
+      console.warn('[mini-gravitiqi] No script route specified.');
+      return;
+    }
+    GM_xmlhttpRequest({
+      method: 'GET',
+      url: 'https://gist.githubusercontent.com/Trungquan2021/' + route.trim() + '/raw/core.js?t=' + Date.now(),
+      onload: function (res) {
+        if (res.status === 200 && res.responseText) {
+          const runCore = new Function(
+            'GM_setValue', 'GM_getValue', 'GM_xmlhttpRequest', 'unsafeWindow',
+            res.responseText
+          );
+          runCore(GM_setValue, GM_getValue, GM_xmlhttpRequest, unsafeWindow);
+        } else {
+          console.error('[mini-gravitiqi] Route load failed:', res.status);
+        }
+      },
+      onerror: function () {
+        console.error('[mini-gravitiqi] Network error while loading route.');
+      }
+    });
+  };
 })();
