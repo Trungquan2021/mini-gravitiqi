@@ -1,0 +1,2 @@
+# mini-gravitiqi
+solve assignment
